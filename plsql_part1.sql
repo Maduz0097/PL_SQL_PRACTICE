@@ -125,3 +125,175 @@ BEGIN
     dbms_output.put_line(lv_syears);
 END;
 /
+
+--SQL Attributes
+
+/*
+1. ROWCOUNT - %ROWCOUNT
+2. FOUND/ NOTFOUND - %FOUND / %NOTFOUND
+*/
+
+
+-- update department 10 employees name to SAM
+
+BEGIN 
+UPDATE EMPCOPYPL SET FIRST_NAME = 'SAM' WHERE DEPARTMENT_ID = 10;
+DBMS_OUTPUT.PUT_LINE('Updated' || SQL%ROWCOUNT || '');
+END;
+/
+ -- ROW COUNT is 1
+ 
+BEGIN 
+UPDATE EMPCOPYPL SET FIRST_NAME = 'SAM' WHERE DEPARTMENT_ID = 5000;
+DBMS_OUTPUT.PUT_LINE('Updated' || SQL%ROWCOUNT || '');
+END;
+/
+
+-- ROW COUNT is 0
+
+ 
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('before' || SQL%ROWCOUNT);
+DELETE FROM EMPCOPYPL WHERE EMPLOYEE_ID = 100;
+DBMS_OUTPUT.PUT_LINE('deleted' || SQL%ROWCOUNT || '');
+END;
+/
+
+-- ROW COUNT is 1
+
+
+
+--IF THEN ELSE
+
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('before' || SQL%ROWCOUNT);
+DELETE
+FROM EMPCOPYPL
+WHERE EMPLOYEE_ID = 001;
+DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT);
+
+IF SQL%FOUND THEN
+DBMS_OUTPUT.put_line('inside if');
+ELSE 
+DBMS_OUTPUT.PUT_LINE('inside else');
+END IF;
+
+END;
+/
+
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('before' || SQL%ROWCOUNT);
+DELETE
+FROM EMPCOPYPL
+WHERE EMPLOYEE_ID = 001;
+DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT);
+
+IF SQL%NOTFOUND THEN
+DBMS_OUTPUT.put_line('inside if');
+ELSE 
+DBMS_OUTPUT.PUT_LINE('inside else');
+END IF;
+
+END;
+/
+
+-- increase the salary of the employee with employee id 100 based on the following conditions
+/*
+salary > 7000 -> increase by 15%
+salary > 5000 -> increase by 10%
+salary > 2500 -> increase by 5%
+otherwise increase by 2%
+
+print first name,salary and updated salary of this employee
+*/
+
+DECLARE
+    lv_fname EMPCOPYPL.FIRST_NAME%TYPE;
+    lv_salary EMPCOPYPL.SALARY%TYPE;
+	u_salary EMPCOPYPL.SALARY%TYPE;
+    
+BEGIN
+    SELECT first_name,salary
+    INTO lv_fname, lv_salary
+    FROM EMPCOPYPL
+    WHERE EMPLOYEE_ID=101;
+	
+
+IF lv_salary > 7000 THEN
+ u_salary := lv_salary * 1.15;
+ ELSIF lv_salary > 5000 THEN
+ u_salary := lv_salary * 1.10;
+ ELSIF lv_salary > 2500 THEN
+ u_salary := lv_salary * 1.05;
+ ELSE
+ u_salary := lv_salary * 1.02;
+ END IF;
+
+ dbms_output.put_line(lv_fname  || ' ' || lv_salary || ' ' || u_salary );
+    
+END;
+/
+
+-- case STATEMENT
+
+
+
+
+DECLARE
+    lv_fname EMPCOPYPL.FIRST_NAME%TYPE;
+    lv_salary EMPCOPYPL.SALARY%TYPE;
+	u_salary EMPCOPYPL.SALARY%TYPE;
+    
+BEGIN
+    SELECT first_name,salary
+    INTO lv_fname, lv_salary
+    FROM EMPCOPYPL
+    WHERE EMPLOYEE_ID=101;
+
+case
+ WHEN lv_salary > 7000 THEN  u_salary := lv_salary * 1.15;
+ WHEN lv_salary > 5000 THEN  u_salary := lv_salary * 1.10;
+ WHEN lv_salary > 2500 THEN  u_salary := lv_salary * 1.05;
+ ELSE u_salary := lv_salary * 1.02;
+END case;
+
+ dbms_output.put_line(lv_fname  || ' ' || lv_salary || ' ' || u_salary );
+    
+END;
+/
+
+--increase the salary of the employee with employee id 150 based on the following conditions:
+/*
+service > 25 --> increase salary by 25%
+service > 20 --> salary 20%
+service > 15 --> salary 15%
+service > 10 --> salary 10%
+otherwise 5%
+
+
+*/
+
+
+
+
+DECLARE
+    lv_fname EMPCOPYPL.FIRST_NAME%TYPE;
+    lv_salary EMPCOPYPL.SALARY%TYPE;
+	u_salary EMPCOPYPL.SALARY%TYPE;
+    lv_syears INT;
+BEGIN
+    SELECT first_name,salary, ROUND((SYSDATE - HIRE_DATE) / 365)
+    INTO lv_fname, lv_salary, lv_syears
+    FROM EMPCOPYPL WHERE EMPLOYEE_ID = 150;
+
+case 
+WHEN lv_syears > 25 THEN u_salary := lv_salary * 1.25;
+WHEN lv_syears > 20 THEN u_salary := lv_salary * 1.20;
+WHEN lv_syears > 15 THEN u_salary := lv_salary * 1.15;
+WHEN lv_syears > 10 THEN u_salary := lv_salary * 1.10;
+ELSE u_salary := lv_salary * 1.05;
+END CASE;
+    dbms_output.put_line(lv_fname || ' ' || lv_syears || ' ' || lv_salary || ' ' || u_salary);
+    
+END;
+/
