@@ -297,3 +297,169 @@ END CASE;
     
 END;
 /
+-- loops
+
+DECLARE 
+   x number := 1; 
+BEGIN 
+   LOOP 
+      dbms_output.put_line(x); 
+      x := x + 1; 
+      IF x > 10 THEN 
+         exit; 
+      END IF; 
+   END LOOP; 
+   
+END; 
+/
+-- star patterns with while LOOP
+
+declare
+n number:=5;
+i number := 5;
+j number := 5;
+begin
+for i in 1..n
+loop
+for j in 1..i
+loop
+dbms_output.put('*');
+end loop;
+dbms_output.new_line;
+end loop;
+end;
+/
+
+-- using while LOOP
+
+DECLARE
+    i INT;
+    k INT;
+BEGIN
+    i := 10;
+    WHILE i > 0
+    LOOP
+        k := 0;
+        WHILE k < i
+        LOOP
+            dbms_output.put('*');
+            k := k + 1;
+        END LOOP;
+
+        dbms_output.new_line;
+        i := i - 1;
+    END LOOP;
+END;
+/
+
+
+-- EXAMPLE 11 :
+
+BEGIN 
+FOR x IN 1..10 LOOP
+DBMS_OUTPUT.PUT_LINE(x);
+END LOOP;
+END;
+/
+
+BEGIN
+ FOR x IN REVERSE 
+ 1..10 LOOP
+ DBMS_OUTPUT.PUT_LINE(x);
+ END LOOP;
+ END;
+ /
+
+
+-- collections in PL/SQL
+
+DECLARE 
+ TYPE salary IS TABLE OF NUMBER
+ INDEX BY VARCHAR2(20);
+ salary_list salary;
+ name VARCHAR2(20);
+ counter NUMBER;
+ 
+ BEGIN 
+ --  adding elements to the TABLE
+ 
+ salary_list('Rajnish') := 62000;
+ salary_list('Minakshi') := 75000;
+ salary_list('Martin') := 100000;
+ salary_list('James') := 78000;
+ counter := salary_list.COUNT;
+ name := salary_list.FIRST; 
+   WHILE name IS NOT null LOOP 
+      dbms_output.put_line 
+      ('Salary of ' || name || ' is ' || TO_CHAR(salary_list(name))); 
+      name := salary_list.NEXT(name); 
+   END LOOP; 
+   dbms_output.put_line(counter);
+END; 
+/
+
+
+-- example 2
+/*
+DECLARE
+   TYPE typ_emp_det IS TABLE of EMPLOYEES.EMPLOYEE_ID%TYPE 
+   INDEX BY BINARY_INTEGER;
+   vrec_emp typ_emp_det;
+   num BINARY_INTEGER;
+   
+   BEGIN
+       vrec_emp(2):= 1995;
+	   vrec_emp(5):= 1993;
+	   vrec_emp(9) := 1986;
+	   vrec_emp(21) := 2000;
+	   vrec_emp(45) := 2018;
+	   
+	   num := vrec_emp.FIRST;
+	   
+	   WHILE vrec_emp IS NOT NULL LOOP
+	   dbms_output.put_line(vrec_emp(num));
+	   num := vrec_emp.NEXT(num);
+	   
+	   END LOOP;
+	   
+	   END;
+	   /
+	*/   
+	
+DECLARE
+	TYPE typ_emp IS TABLE OF EMPLOYEES%ROWTYPE INDEX BY BINARY_INTEGER;
+	vtbl_employees typ_emp;
+	v_index BINARY_INTEGER;
+	
+	min_employee_id EMPLOYEES.EMPLOYEE_ID%type;
+	max_employee_id EMPLOYEES.EMPLOYEE_ID%type;
+	
+	vrec_employee EMPLOYEES%ROWTYPE;
+BEGIN
+	SELECT MIN(employee_id), MAX(employee_id)
+	INTO min_employee_id, max_employee_id
+	FROM employees
+	ORDER BY employee_id;
+	
+	FOR i IN min_employee_id .. max_employee_id LOOP
+		SELECT *
+		INTO vrec_employee
+		FROM employees
+		WHERE employee_id = i;
+		
+		vtbl_employees(i) := vrec_employee;
+	END LOOP;
+	
+	v_index := vtbl_employees.first;
+	WHILE v_index IS NOT NULL
+	LOOP
+		DBMS_OUTPUT.PUT_LINE(vtbl_employees(v_index).employee_id || ' ' || vtbl_employees(v_index).first_name || ' ' || vtbl_employees(v_index).last_name);
+		
+		v_index := vtbl_employees.next(v_index);
+	END LOOP;
+END;
+/
+
+
+ 	
+	
