@@ -425,7 +425,7 @@ DECLARE
 	   END;
 	   /
 	*/   
-	
+	--method 1 --
 DECLARE
 	TYPE typ_emp IS TABLE OF EMPLOYEES%ROWTYPE INDEX BY BINARY_INTEGER;
 	vtbl_employees typ_emp;
@@ -442,7 +442,7 @@ BEGIN
 	ORDER BY employee_id;
 	
 	FOR i IN min_employee_id .. max_employee_id LOOP
-		SELECT *
+		SELECT employee_id,first_name,last_name
 		INTO vrec_employee
 		FROM employees
 		WHERE employee_id = i;
@@ -460,6 +460,39 @@ BEGIN
 END;
 /
 
-
- 	
+--method 2
 	
+DECLARE
+	TYPE typ_emp IS TABLE OF EMPLOYEES%ROWTYPE INDEX BY BINARY_INTEGER;
+	vtbl_employees typ_emp;
+	v_index BINARY_INTEGER;
+	
+	min_employee_id EMPLOYEES.EMPLOYEE_ID%type;
+	max_employee_id EMPLOYEES.EMPLOYEE_ID%type;
+	
+	vrec_employee EMPLOYEES%ROWTYPE;
+BEGIN
+	SELECT MIN(employee_id), MAX(employee_id)
+	INTO min_employee_id, max_employee_id
+	FROM employees
+	ORDER BY employee_id;
+	
+	FOR i IN min_employee_id .. max_employee_id LOOP
+		SELECT employee_id,first_name,last_name
+		INTO vtbl_employees(i).employee_id,vtbl_employees(i).first_name,vtbl_employees(i).last_name
+		FROM employees
+		WHERE employee_id = i;
+		
+		
+	END LOOP;
+	
+	v_index := vtbl_employees.first;
+	WHILE v_index IS NOT NULL
+	LOOP
+		DBMS_OUTPUT.PUT_LINE(vtbl_employees(v_index).employee_id || ' ' || vtbl_employees(v_index).first_name || ' ' || vtbl_employees(v_index).last_name);
+		
+		v_index := vtbl_employees.next(v_index);
+	END LOOP;
+END;
+/
+
