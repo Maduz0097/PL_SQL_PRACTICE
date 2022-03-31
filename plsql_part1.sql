@@ -425,7 +425,8 @@ DECLARE
 	   END;
 	   /
 	*/   
-	--method 1 --
+--method 1 --
+
 DECLARE
 	TYPE typ_emp IS TABLE OF EMPLOYEES%ROWTYPE INDEX BY BINARY_INTEGER;
 	vtbl_employees typ_emp;
@@ -495,4 +496,125 @@ BEGIN
 	END LOOP;
 END;
 /
+
+-- CURSOR - acting like a pointer
+
+-- declare a CURSOR
+-- open STATEMENT
+-- fetch statment
+-- close STATEMENT
+
+-- example 1 output 1st record
+DECLARE
+ CURSOR cur_emp IS 
+ SELECT employee_id,first_name FROM employees;
+ vn_id EMPLOYEES.EMPLOYEE_ID%TYPE;
+ vn_name EMPLOYEES.FIRST_NAME%TYPE;
+ 
+BEGIN 
+ OPEN cur_emp;
+ FETCH cur_emp INTO vn_id,vn_name;
+ DBMS_OUTPUT.PUT_LINE(vn_id || ' ' || vn_name);
+ CLOSE cur_emp;
+ END;
+/
+
+--example 2 fetch all using LOOP
+
+DECLARE
+ CURSOR cur_emp IS 
+ SELECT employee_id,first_name FROM employees;
+ vn_id EMPLOYEES.EMPLOYEE_ID%TYPE;
+ vn_name EMPLOYEES.FIRST_NAME%TYPE;
+ vn_min EMPLOYEES.EMPLOYEE_ID%TYPE;
+ vn_max EMPLOYEES.EMPLOYEE_ID%TYPE;
+ 
+ 
+BEGIN 
+ OPEN cur_emp;
+ SELECT MIN(employee_id),MAX(employee_id)INTO vn_min,vn_max FROM employees ;
+ FOR i IN vn_min..vn_max LOOP
+ FETCH cur_emp INTO vn_id,vn_name;
+ DBMS_OUTPUT.PUT_LINE(vn_id || ' ' || vn_name);
+ END LOOP;
+ CLOSE cur_emp;
+ END;
+/
+
+-- example 3 fetch all records using not found
+
+
+DECLARE
+
+ CURSOR cur_emp IS 
+ SELECT employee_id,first_name FROM employees;
+ vn_id EMPLOYEES.EMPLOYEE_ID%TYPE;
+ vn_name EMPLOYEES.FIRST_NAME%TYPE;
+ 
+ BEGIN
+ 
+  OPEN cur_emp;
+  LOOP
+  FETCH cur_emp INTO vn_id,vn_name;
+  EXIT WHEN cur_emp%NOTFOUND;
+ DBMS_OUTPUT.PUT_LINE(vn_id || ' ' || vn_name);
+  END LOOP;
+  
+  END;
+  /
+  
+  -- explicit cursor usage 
+  
+  DECLARE
+  REC  EMPLOYEES%ROWTYPE;
+  cursor emp_cur IS SELECT * FROM employees; 
+BEGIN
+  FOR rec IN emp_cur LOOP
+    SYS.DBMS_OUTPUT.PUT_LINE(REC.EMPLOYEE_ID || ' ' ||  REC.FIRST_NAME   );
+  END LOOP;
+END;
+/
+
+-- cursor example 
+/*  employee_id,first_name,salary,new_salary,service
+
+if service > 25,new salary is increased by 30% 
+if service > 20, new salary by 20%
+if new salary is increased by 10%
+
+*/
+
+
+DECLARE 
+  -- REC  EMPLOYEES%ROWTYPE;
+  cursor emp_cur IS SELECT EMPLOYEE_ID,FIRST_NAME,SALARY,(ROUND(SYSDATE - hire_date) / 365) AS service, (
+			CASE
+				WHEN (ROUND(SYSDATE - hire_date) / 365) > 25
+					THEN salary * 1.30
+				WHEN (ROUND(SYSDATE - hire_date) / 365) > 20
+					THEN salary * 1.20
+				ELSE salary * 1.10
+			END) AS new_salary
+  FROM employees; 
+  TYPE typ_emp IS TABLE OF emp_cur%ROWTYPE INDEX BY BINARY_INTEGER;
+	vtbl_employees typ_emp;
+	
+	v_index BINARY_INTEGER;
+  
+  BEGIN
+    FOR rec IN emp_cur LOOP
+	 vtbl_employees(rec.employee_id) := rec;
+	 
+	END LOOP;
+	
+	FOR X IN vtbl_employees.FIRST..vtbl_employees.LAST LOOP
+	DBMS_OUTPUT.PUT_LINE(vtbl_employees(X).employee_id || ' ' || vtbl_employees(X).first_name || ' ' || vtbl_employees(X).salary || ' ' || vtbl_employees(X).service || ' ' || vtbl_employees(X).new_salary);
+	END LOOP;
+	
+END;
+/
+
+  
+  
+  
 
