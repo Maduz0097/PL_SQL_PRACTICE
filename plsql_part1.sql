@@ -787,3 +787,29 @@ BEGIN
  
  END;
 /
+
+
+-- CREATE TABLE EMPUPDATE AS SELECT * FROM EMPLOYEES;
+
+-- the salary of employee with employee id 100 should be updated as 5000 if the updated salary is 
+-- less than the existing salary, else give an EXCEPTION
+
+
+DECLARE 
+   less_salary EXCEPTION;
+   updated_salary EMPLOYEES.salary%TYPE;
+   existing_salary EMPLOYEES.salary%TYPE;
+   
+   BEGIN
+   SELECT salary INTO existing_salary FROM EMPUPDATE WHERE EMPLOYEE_ID = 100;
+   IF existing_salary < 5000 THEN
+   UPDATE EMPUPDATE SET salary = 5000 WHERE EMPLOYEE_ID = 100;
+   DBMS_OUTPUT.PUT_LINE('GREATER SALARY');
+   ELSE
+   RAISE less_salary;
+   END IF;
+    EXCEPTION WHEN less_salary THEN 
+	DBMS_OUTPUT.PUT_LINE('LESS SALARY');
+ END;
+ /
+
